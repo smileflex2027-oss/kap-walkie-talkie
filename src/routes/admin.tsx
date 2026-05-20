@@ -76,7 +76,8 @@ function AdminPage() {
   const applyFlag = async (u: Row, field: "is_banned" | "is_muted", value: boolean) => {
     const prev = u[field];
     setUsers((list) => list.map((x) => (x.user_id === u.user_id ? { ...x, [field]: value } : x)));
-    const { error } = await supabase.from("profiles").update({ [field]: value }).eq("user_id", u.user_id);
+    const patch = (field === "is_banned" ? { is_banned: value } : { is_muted: value });
+    const { error } = await supabase.from("profiles").update(patch).eq("user_id", u.user_id);
     if (error) {
       setUsers((list) => list.map((x) => (x.user_id === u.user_id ? { ...x, [field]: prev } : x)));
       toast.error(error.message);
