@@ -33,7 +33,10 @@ function KapWalkie() {
   const [err, setErr] = useState<string | null>(null);
   const pttRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => walkie.subscribe(setState), []);
+  useEffect(() => {
+    const unsub = walkie.subscribe(setState);
+    return () => { unsub(); };
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/auth" });
