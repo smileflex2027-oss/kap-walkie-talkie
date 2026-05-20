@@ -31,7 +31,12 @@ function KapWalkie() {
   const [joining, setJoining] = useState(false);
   const pttRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => walkie.subscribe(setState), []);
+  useEffect(() => {
+    const unsub = walkie.subscribe(setState);
+    return () => {
+      unsub();
+    };
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("kap-name");
