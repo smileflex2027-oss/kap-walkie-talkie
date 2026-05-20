@@ -77,3 +77,15 @@
   50% { transform: scaleY(1); }
 }
 .bar { animation: bars 0.6s ease-in-out infinite; transform-origin: bottom; }
+
+.input {
+  width: 100%;
+  border-radius: 0.5rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  outline: none;
+  color: var(--color-foreground);
+}
+.input:focus { border-color: var(--color-primary); }
