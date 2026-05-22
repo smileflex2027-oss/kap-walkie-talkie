@@ -117,8 +117,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SidePanel />
-        <Outlet />
+        <PresenceProvider>
+          <SidePanel />
+          <Outlet />
+        </PresenceProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
