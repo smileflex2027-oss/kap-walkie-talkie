@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Home, User, Shield, LogOut, LogIn, Radio } from "lucide-react";
+import { Menu, X, Home, User, Shield, LogOut, LogIn, Radio, Users, Megaphone } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { usePresence } from "@/hooks/use-presence";
 
 export function SidePanel() {
   const [open, setOpen] = useState(false);
