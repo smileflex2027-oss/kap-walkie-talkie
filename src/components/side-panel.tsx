@@ -33,8 +33,11 @@ export function SidePanel() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const online = usePresence();
   const links = [
     { to: "/", label: "Channels", icon: Home, show: true },
+    { to: "/users", label: `Users${online.size ? ` (${online.size} online)` : ""}`, icon: Users, show: !!user },
+    { to: "/announcements", label: "Announcements", icon: Megaphone, show: !!user },
     { to: "/profile", label: "Profile", icon: User, show: !!user },
     { to: "/admin", label: "Admin", icon: Shield, show: isAdmin },
   ].filter((l) => l.show);
