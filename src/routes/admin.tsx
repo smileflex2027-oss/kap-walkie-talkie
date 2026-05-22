@@ -104,6 +104,47 @@ function AdminPage() {
     }
   };
 
+  const applyBulkFlag = async (ids: string[], field: "is_banned" | "is_muted", value: boolean) => {
+    const affected = users.filter((u) => ids.includes(u.user_id));
+    const prevMap = new Map(affected.map((u) => [u.user_id, u[field]]));
+    setUsers((list) => list.map((x) => (ids.includes(x.user_id) ? { ...x, [field]: value } : x)));
+    const patch = field === "is_banned" ? { is_banned: value } : { is_muted: value };
+    const { error } = await supabase.from("profiles").update(patch).in("user_id", ids);
+    if (error) {
+      setUsers((list) =>
+        list.map((x) => (prevMap.has(x.user_id) ? { ...x, [field]: prevMap.get(x.user_id)! } : x)),
+      );
+      toast.error(error.message);
+      return;
+    }
+    setSelected(new Set());
+    const verb = field === "is_banned" ? (value ? "banned" : "unbanned") : value ? "muted" : "unmuted";
+    toast.success(`${ids.length} user${ids.length === 1 ? "" : "s"} ${verb}`, {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          // Revert each to its previous value
+          const groups = new Map<boolean, string[]>();
+          prevMap.forEach((v, id) => {
+            const arr = groups.get(v) ?? [];
+            arr.push(id);
+            groups.set(v, arr);
+          });
+          for (const [val, gids] of groups) {
+            await applyBulkFlag(gids, field, val);
+          }
+        },
+      },
+    });
+  };
+
+  const toggleSelect = (id: string) =>
+    setSelected((s) => {
+      const n = new Set(s);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+
   const toggleAdmin = async (u: Row) => {
     if (u.is_admin) {
       await supabase.from("user_roles").delete().eq("user_id", u.user_id).eq("role", "admin");
