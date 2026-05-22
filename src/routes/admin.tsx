@@ -388,6 +388,23 @@ function AdminPage() {
           }}
         />
       )}
+      {bulkConfirm && (
+        <ConfirmModal
+          title={bulkConfirm.action === "ban" ? `Ban ${bulkConfirm.ids.length} users?` : `Mute ${bulkConfirm.ids.length} users?`}
+          body={
+            bulkConfirm.action === "ban"
+              ? `Selected users will lose channel access until unbanned. You can undo this action.`
+              : `Selected users will not be able to transmit audio until unmuted. You can undo this action.`
+          }
+          confirmLabel={bulkConfirm.action === "ban" ? "Ban all" : "Mute all"}
+          onCancel={() => setBulkConfirm(null)}
+          onConfirm={() => {
+            const { action, ids } = bulkConfirm;
+            setBulkConfirm(null);
+            applyBulkFlag(ids, action === "ban" ? "is_banned" : "is_muted", true);
+          }}
+        />
+      )}
     </main>
   );
 }
