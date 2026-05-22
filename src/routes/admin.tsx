@@ -224,9 +224,81 @@ function AdminPage() {
               className="input pl-9"
             />
           </div>
+
+          {(() => {
+            const visibleIds = filteredUsers.map((u) => u.user_id);
+            const selectedVisible = visibleIds.filter((id) => selected.has(id));
+            const allSelected = visibleIds.length > 0 && selectedVisible.length === visibleIds.length;
+            const someSelected = selectedVisible.length > 0;
+            return (
+              <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    className="size-4 accent-primary cursor-pointer"
+                    checked={allSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someSelected && !allSelected;
+                    }}
+                    onChange={(e) => {
+                      setSelected((s) => {
+                        const n = new Set(s);
+                        if (e.target.checked) visibleIds.forEach((id) => n.add(id));
+                        else visibleIds.forEach((id) => n.delete(id));
+                        return n;
+                      });
+                    }}
+                  />
+                  {someSelected ? `${selectedVisible.length} selected` : "Select all"}
+                </label>
+                {someSelected && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setBulkConfirm({ action: "mute", ids: selectedVisible })}
+                      className="text-xs px-2 py-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground"
+                    >
+                      Mute
+                    </button>
+                    <button
+                      onClick={() => applyBulkFlag(selectedVisible, "is_muted", false)}
+                      className="text-xs px-2 py-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground"
+                    >
+                      Unmute
+                    </button>
+                    <button
+                      onClick={() => setBulkConfirm({ action: "ban", ids: selectedVisible })}
+                      className="text-xs px-2 py-1 rounded-md hover:bg-secondary text-destructive"
+                    >
+                      Ban
+                    </button>
+                    <button
+                      onClick={() => applyBulkFlag(selectedVisible, "is_banned", false)}
+                      className="text-xs px-2 py-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground"
+                    >
+                      Unban
+                    </button>
+                    <button
+                      onClick={() => setSelected(new Set())}
+                      className="text-xs px-2 py-1 rounded-md hover:bg-secondary text-muted-foreground"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           <ul className="space-y-2">
             {filteredUsers.map((u) => (
               <li key={u.user_id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+                <input
+                  type="checkbox"
+                  className="size-4 accent-primary cursor-pointer shrink-0"
+                  checked={selected.has(u.user_id)}
+                  onChange={() => toggleSelect(u.user_id)}
+                  aria-label={`Select ${u.display_name}`}
+                />
                 <button
                   onClick={() => setViewing(u)}
                   className="size-10 rounded-full bg-secondary overflow-hidden grid place-items-center font-bold shrink-0"
