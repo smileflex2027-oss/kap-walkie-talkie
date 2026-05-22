@@ -38,6 +38,8 @@ function AdminPage() {
   const [query, setQuery] = useState("");
   const [viewing, setViewing] = useState<Row | null>(null);
   const [confirming, setConfirming] = useState<{ user: Row; action: "ban" | "mute" } | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirm, setBulkConfirm] = useState<{ action: "ban" | "mute" | "unban" | "unmute"; ids: string[] } | null>(null);
 
   // New channel form
   const [newName, setNewName] = useState("");
