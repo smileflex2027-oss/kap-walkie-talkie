@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
+import { PresenceProvider } from "@/hooks/use-presence";
 import { SidePanel } from "@/components/side-panel";
 
 function NotFoundComponent() {
@@ -116,8 +117,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SidePanel />
-        <Outlet />
+        <PresenceProvider>
+          <SidePanel />
+          <Outlet />
+        </PresenceProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

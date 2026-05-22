@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, Home, User, Shield, LogOut, LogIn, Radio } from "lucide-react";
+import { Menu, X, Home, User, Shield, LogOut, LogIn, Radio, Users, Megaphone } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { usePresence } from "@/hooks/use-presence";
 
 export function SidePanel() {
   const [open, setOpen] = useState(false);
@@ -32,8 +33,11 @@ export function SidePanel() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const online = usePresence();
   const links = [
     { to: "/", label: "Channels", icon: Home, show: true },
+    { to: "/users", label: `Users${online.size ? ` (${online.size} online)` : ""}`, icon: Users, show: !!user },
+    { to: "/announcements", label: "Announcements", icon: Megaphone, show: !!user },
     { to: "/profile", label: "Profile", icon: User, show: !!user },
     { to: "/admin", label: "Admin", icon: Shield, show: isAdmin },
   ].filter((l) => l.show);
