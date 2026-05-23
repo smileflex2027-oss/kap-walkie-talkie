@@ -65,15 +65,55 @@ export class Walkie {
 
     // Acquire mic up-front (needs HTTPS + user gesture)
     try {
-      this.localStream = await navigator.mediaDevices.getUserMedia({
+      const md =
+        (typeof navigator !== "undefined" && navigator.mediaDevices) ||
+        // legacy / webview fallbacks
+        ((): MediaDevices | undefined => {
+          type LegacyGUM = (
+            c: MediaStreamConstraints,
+            s: (s: MediaStream) => void,
+            e: (e: unknown) => void,
+          ) => void;
+          const n = navigator as unknown as {
+            getUserMedia?: LegacyGUM;
+            webkitGetUserMedia?: LegacyGUM;
+            mozGetUserMedia?: LegacyGUM;
+          };
+          const legacy = n.getUserMedia || n.webkitGetUserMedia || n.mozGetUserMedia;
+          if (!legacy) return undefined;
+          return {
+            getUserMedia: (c: MediaStreamConstraints) =>
+              new Promise<MediaStream>((res, rej) => legacy.call(navigator, c, res, rej)),
+          } as MediaDevices;
+        })();
+
+      if (!md || !md.getUserMedia) {
+        const insecure = typeof window !== "undefined" && window.location.protocol !== "https:" && window.location.hostname !== "localhost";
+        throw new Error(
+          insecure
+            ? "Microphone requires HTTPS. Open this site over https:// or use localhost."
+            : "Microphone API not available. If you're inside an in-app browser (Facebook, Instagram, TikTok), tap the ••• menu and choose 'Open in Chrome/Safari'.",
+        );
+      }
+
+      this.localStream = await md.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
       // Start muted
       this.localStream.getAudioTracks().forEach((t) => (t.enabled = false));
     } catch (e) {
-      this.state.lastError = "Microphone permission denied";
+      const err = e as { name?: string; message?: string };
+      let msg = err.message || "Could not access microphone";
+      if (err.name === "NotAllowedError" || err.name === "SecurityError") {
+        msg = "Microphone permission denied. Enable it in your browser site settings and reload.";
+      } else if (err.name === "NotFoundError" || err.name === "OverconstrainedError") {
+        msg = "No microphone detected on this device.";
+      } else if (err.name === "NotReadableError") {
+        msg = "Microphone is busy in another app. Close it and try again.";
+      }
+      this.state.lastError = msg;
       this.emit();
-      throw e;
+      throw new Error(msg);
     }
 
     const channelKey = `walkie:${channelName.trim().toLowerCase()}`;

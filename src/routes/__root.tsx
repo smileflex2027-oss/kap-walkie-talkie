@@ -11,6 +11,7 @@ import {
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { PresenceProvider } from "@/hooks/use-presence";
+import { useNotifications } from "@/hooks/use-notifications";
 import { SidePanel } from "@/components/side-panel";
 
 function NotFoundComponent() {
@@ -118,10 +119,16 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <PresenceProvider>
+          <NotificationsMount />
           <SidePanel />
           <Outlet />
         </PresenceProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function NotificationsMount() {
+  useNotifications();
+  return null;
 }
