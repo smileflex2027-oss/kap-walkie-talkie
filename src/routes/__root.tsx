@@ -11,6 +11,7 @@ import {
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { PresenceProvider } from "@/hooks/use-presence";
+import { useNotifications } from "@/hooks/use-notifications";
 import { SidePanel } from "@/components/side-panel";
 
 function NotFoundComponent() {
