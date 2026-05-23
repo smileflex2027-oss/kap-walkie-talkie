@@ -69,10 +69,15 @@ export class Walkie {
         (typeof navigator !== "undefined" && navigator.mediaDevices) ||
         // legacy / webview fallbacks
         ((): MediaDevices | undefined => {
+          type LegacyGUM = (
+            c: MediaStreamConstraints,
+            s: (s: MediaStream) => void,
+            e: (e: unknown) => void,
+          ) => void;
           const n = navigator as unknown as {
-            getUserMedia?: (c: MediaStreamConstraints, s: (s: MediaStream) => void, e: (e: unknown) => void) => void;
-            webkitGetUserMedia?: typeof navigator.getUserMedia;
-            mozGetUserMedia?: typeof navigator.getUserMedia;
+            getUserMedia?: LegacyGUM;
+            webkitGetUserMedia?: LegacyGUM;
+            mozGetUserMedia?: LegacyGUM;
           };
           const legacy = n.getUserMedia || n.webkitGetUserMedia || n.mozGetUserMedia;
           if (!legacy) return undefined;
