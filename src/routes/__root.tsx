@@ -119,10 +119,16 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <PresenceProvider>
+          <NotificationsMount />
           <SidePanel />
           <Outlet />
         </PresenceProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function NotificationsMount() {
+  useNotifications();
+  return null;
 }
