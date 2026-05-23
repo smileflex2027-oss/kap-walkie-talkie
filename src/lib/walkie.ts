@@ -96,9 +96,19 @@ export class Walkie {
         );
       }
 
-      this.localStream = await md.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-      });
+      this.localStream = await md
+        .getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        })
+        .catch(async (e) => {
+          const err = e as { name?: string };
+          // Mic busy → wait briefly and retry once with a minimal constraint set
+          if (err?.name === "NotReadableError" || err?.name === "AbortError") {
+            await new Promise((r) => setTimeout(r, 700));
+            return md.getUserMedia({ audio: true });
+          }
+          throw e;
+        });
       // Start muted
       this.localStream.getAudioTracks().forEach((t) => (t.enabled = false));
     } catch (e) {
@@ -108,8 +118,8 @@ export class Walkie {
         msg = "Microphone permission denied. Enable it in your browser site settings and reload.";
       } else if (err.name === "NotFoundError" || err.name === "OverconstrainedError") {
         msg = "No microphone detected on this device.";
-      } else if (err.name === "NotReadableError") {
-        msg = "Microphone is busy in another app. Close it and try again.";
+      } else if (err.name === "NotReadableError" || err.name === "AbortError") {
+        msg = "Microphone is busy in another app or tab. Close other apps using the mic (Zoom, Meet, WhatsApp, other browser tabs), then try Join again.";
       }
       this.state.lastError = msg;
       this.emit();
